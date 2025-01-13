@@ -2,7 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+    use Illuminate\Database\Seeder;
+    use App\Models\Quiz;
+    use App\Models\Question;
+    use App\Models\Option;
+    use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -11,6 +15,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(AdminSeeder::class);
+        // Create 5 quizzes
+        Quiz::factory(5)->create()->each(function ($quiz) {
+            // Create 50 questions for each quiz
+            $questions = Question::factory(50)->create();
+
+            $questions->each(function ($question) use ($quiz) {
+                // Attach question to quiz
+                $quiz->questions()->attach($question);
+
+                // Create 4 options for each question
+                Option::factory(4)->create([
+                    'question_id' => $question->id,
+                ]);
+            });
+        });
     }
 }

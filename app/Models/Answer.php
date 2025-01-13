@@ -14,6 +14,7 @@ class Answer extends Model
         'user_id',
         'test_id',
         'question_id',
+        'code_answer',
         'option_id',
         'correct',
     ];

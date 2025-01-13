@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Quiz\QuizController;
 use App\Http\Controllers\ResultController;
 use App\Http\Livewire\Admin\AdminForm;
 use App\Http\Livewire\Admin\AdminList;
@@ -26,9 +27,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 // public routes
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::middleware('throttle:1,1')->group(function () {
-    Route::get('quiz/{quiz}', [HomeController::class, 'show'])->name('quiz.show');
+Route::get('/quiz', [QuizController::class, 'index'])->name('quiz.index');
+Route::get('/', [HomeController::class, 'home'])->name('home');
+
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('quiz/{quiz}', [QuizController::class, 'show'])->name('quiz.show');
 });
 Route::get('results/{test}', [ResultController::class, 'show'])->name('results.show');
 

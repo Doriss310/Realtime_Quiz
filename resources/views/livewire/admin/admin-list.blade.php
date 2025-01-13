@@ -1,3 +1,5 @@
+@vite('resources/css/app.css')
+@include('layouts.navigation')
 <div>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
@@ -16,7 +18,7 @@
                     <div class="mb-4">
                         <a href="{{ route('admin.create') }}"
                             class="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-gray-700">
-                            Create Admin
+                            Tạo Admin
                         </a>
                     </div>
 
@@ -30,7 +32,7 @@
                                     </th>
                                     <th class="bg-gray-50 px-6 py-3 text-left">
                                         <span
-                                            class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Name</span>
+                                            class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Tên</span>
                                     </th>
                                     <th class="bg-gray-50 px-6 py-3 text-left">
                                         <span

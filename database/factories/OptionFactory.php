@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Option;
 use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,12 +16,22 @@ class OptionFactory extends Factory
      *
      * @return array<string, mixed>
      */
+//    public function definition(): array
+//    {
+//        return [
+//            'text' => fake()->text(),
+//            'correct' => fake()->boolean(),
+//            'question_id' => Question::factory(),
+//        ];
+//    }
+    protected $model = Option::class;
+
     public function definition(): array
     {
+        $correct = $this->faker->boolean(25); // 25% chance of being correct
         return [
-            'text' => fake()->text(),
-            'correct' => fake()->boolean(),
-            'question_id' => Question::factory(),
+            'text' => $correct ? 'Đáp án đúng' . $this->faker->randomElement([1, 2, 3, 4]) : 'Sai ' . $this->faker->randomElement([1, 2, 3, 4]),
+            'correct' => $correct,
         ];
     }
 }

@@ -6,7 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "guzzlehttp/guzzle": "^7.2",
+        "beyondcode/laravel-websockets": "^1.14",
+        "guzzlehttp/guzzle": "^7.0.0",
         "laravel/framework": "^10.8",
         "laravel/sanctum": "^3.2",
         "laravel/socialite": "^5.6",
@@ -64,6 +65,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

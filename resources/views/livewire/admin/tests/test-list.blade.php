@@ -1,3 +1,6 @@
+@vite('resources/css/app.css')
+@include('layouts.navigation')
+
 <div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -11,7 +14,7 @@
                 <div class="p-6 text-gray-900">
                     <select class="p-3 w-full text-sm leading-5 rounded border-0 shadow text-slate-600"
                         wire:model="quiz_id">
-                        <option value="0">All quizzes</option>
+                        <option value="0">Tất cả chủ đề</option>
                         @foreach ($quizzes as $quiz)
                             <option value="{{ $quiz->id }}">{{ $quiz->title }}</option>
                         @endforeach
@@ -25,25 +28,23 @@
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">User</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Người dùng</span>
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Quiz</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Chủ đề</span>
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Result</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Kết quả</span>
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">IP
-                                        Address</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Địa chỉ IP</span>
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Time
-                                        Spent</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Tổng thời gian</span>
                                 </th>
                                 <th class="w-40 bg-gray-50 px-6 py-3 text-left">
                                 </th>
@@ -75,7 +76,7 @@
                                     <td>
                                         <a href="{{ route('results.show', $test) }}"
                                             class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
-                                            View
+                                            Xem
                                         </a>
                                     </td>
                                 </tr>
@@ -83,7 +84,7 @@
                                 <tr>
                                     <td colspan="8"
                                         class="px-6 py-4 text-center leading-5 text-gray-900 whitespace-no-wrap">
-                                        No tests were found.
+                                        Không tìm thấy bài kiểm tra nào.
                                     </td>
                                 </tr>
                             @endforelse

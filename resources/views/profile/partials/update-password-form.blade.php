@@ -1,10 +1,12 @@
+
+
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
+    <header style="color: #0a0a23" ">
+        <h2 class="text-lg font-medium text-white">
             {{ __('Update Password') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 ml-1 text-sm text-white">
             {{ __('Ensure your account is using a long, random password to stay secure.') }}
         </p>
     </header>

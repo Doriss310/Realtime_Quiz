@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('slug');
+            $table->string('slug')->nullable();
             $table->longText('description')->nullable();
             $table->boolean('published')->default(0);
             $table->boolean('public')->default(0);

@@ -1,10 +1,13 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
+@vite('resources/css/app.css')
+
+
+<section class="space-y-6" style="color: #0a0a23">
+    <header style="color: #0a0a23">
+        <h2 class="text-lg font-medium text-white">
             {{ __('Delete Account') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 ml-3 text-sm text-white">
             {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
         </p>
     </header>
@@ -19,7 +22,7 @@
             @csrf
             @method('delete')
 
-            <h2 class="text-lg font-medium text-gray-900">
+            <h2 class="text-lg font-medium text-white">
                 {{ __('Are you sure you want to delete your account?') }}
             </h2>
 

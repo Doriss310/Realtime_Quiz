@@ -6,7 +6,10 @@ use App\Models\Quiz;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(){
+        return view('quiz.index');
+    }
+    public function home()
     {
         $query = Quiz::whereHas('questions')
             ->withCount('questions')

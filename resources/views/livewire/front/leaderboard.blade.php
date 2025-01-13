@@ -1,3 +1,5 @@
+@vite('resources/css/app.css')
+@include('layouts.navigation')
 <div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -11,7 +13,7 @@
                 <div class="p-6 text-gray-900">
                     <select class="p-3 w-full text-sm leading-5 rounded border-0 shadow text-slate-600"
                         wire:model="quiz_id">
-                        <option value="0">All quizzes</option>
+                        <option value="0">Tất cả chủ đề</option>
                         @foreach ($quizzes as $quiz)
                             <option value="{{ $quiz->id }}">{{ $quiz->title }}</option>
                         @endforeach
@@ -19,19 +21,19 @@
                     <table class="table mt-4 w-full table-view">
                         <thead>
                             <tr>
-                                <th class="bg-gray-50 px-6 py-3 text-left w-9"></th>
+                                <th class="bg-gray-50 px-6 py-3 text-left w-9"><span
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">ID</span></th>
                                 <th class="bg-gray-50 px-6 py-3 text-left w-1/2">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Username</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Tên người dùng</span>
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Quiz</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Chủ đề</span>
                                 </th>
                                 <th class="bg-gray-50 px-6 py-3 text-left">
                                     <span
-                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Correct
-                                        answers</span>
+                                        class="text-xs font-medium uppercase leading-4 tracking-wider text-gray-500">Câu trả lời đúng</span>
                                 </th>
                             </tr>
                         </thead>
@@ -59,7 +61,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3">No results.</td>
+                                    <td colspan="3">Không có kết quả</td>
                                 </tr>
                             @endforelse
                             {{-- @forelse ($users as $user)

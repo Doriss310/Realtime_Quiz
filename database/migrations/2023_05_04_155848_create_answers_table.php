@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('test_id')->nullable()->constrained();
             $table->foreignId('question_id')->nullable()->constrained();
             $table->foreignId('option_id')->nullable()->constrained();
+            $table->text('code_answer')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

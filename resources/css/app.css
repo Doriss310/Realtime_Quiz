@@ -66,7 +66,7 @@
 .select2-container--default
     .select2-selection--multiple
     .select2-selection__choice__remove {
-    @apply text-gray-300 mr-1 static !important;
+    @apply text-black mr-1 static !important;
 }
 
 .select2-container--default

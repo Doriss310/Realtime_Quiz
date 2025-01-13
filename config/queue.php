@@ -25,7 +25,7 @@ return [
     | for each back-end shipped with Laravel. You are free to add more.
     |
     | Drivers: "sync", "database", "beanstalkd", "sqs", "redis", "null"
-    |
+    |k
     */
 
     'connections' => [

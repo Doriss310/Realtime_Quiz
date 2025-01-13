@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Quiz;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -15,17 +16,31 @@ class QuizFactory extends Factory
      *
      * @return array<string, mixed>
      */
+//    public function definition(): array
+//    {
+//        $title = $this->faker->sentence();
+//
+//        return [
+//            'title' => $title,
+//            'description' => fake()->paragraph(),
+//            'published' => false,
+//            'public' => false,
+//        ];
+
+    protected $model = Quiz::class;
+
     public function definition(): array
     {
-        $title = $this->faker->sentence();
-        $slug = Str::slug($title);
+        static $titles = ['HTML', 'CSS', 'Javascript', 'IT', 'General CS'];
+
+        $title = !empty($titles) ? array_shift($titles) : $this->faker->sentence;
 
         return [
             'title' => $title,
-            'slug' => $slug,
-            'description' => fake()->paragraph(),
-            'published' => false,
-            'public' => false,
+            'slug' => Str::slug($title),
+            'description' => $this->faker->paragraph,
+            'published' => $this->faker->boolean,
+            'public' => $this->faker->boolean,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,10 +15,22 @@ class QuestionFactory extends Factory
      *
      * @return array<string, mixed>
      */
+//    public function definition(): array
+//    {
+//        return [
+//            'text' => fake()->paragraph()
+//        ];
+//    }
+
+    protected $model = Question::class;
+
     public function definition(): array
     {
         return [
-            'text' => fake()->paragraph()
+            'text' => $this->faker->sentence,
+            'code_snippet' => '1',
+            'answer_explanation' => $this->faker->optional()->paragraph,
+            'more_info_link' => $this->faker->optional()->url,
         ];
     }
 }

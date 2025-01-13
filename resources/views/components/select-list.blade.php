@@ -5,11 +5,20 @@
                 <option></option>
             @endif
             @foreach ($options as $key => $value)
-                <option value="{{ $key }}">{{ $value }}</option>
+                <option value="{{ $key }}" style="color: black;">{{ $value }}</option>
             @endforeach
         </select>
     </div>
 </div>
+<style>
+    .select2-results__option {
+        color: black !important;
+    }
+
+    .select2-selection__rendered {
+        color: black !important;
+    }
+</style>
 
 @push('scripts')
     <script>
