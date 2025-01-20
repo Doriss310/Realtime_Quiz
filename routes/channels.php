@@ -16,3 +16,6 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+Broadcast::channel('game.{session.code}', function ($user, $gameCode) {
+    return true; // Điều kiện truy cập vào channel nếu cần.
+});

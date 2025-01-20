@@ -33,6 +33,10 @@ class Quiz extends Model
         return $this->belongsToMany(Question::class);
     }
 
+    public function gameSessions(){
+        return $this->belongsToMany(GameSession::class);
+    }
+
     public function scopePublic($q)
     {
         return $q->where('public', true);

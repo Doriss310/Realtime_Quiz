@@ -9,17 +9,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class QuestionList extends Component
 {
-    public function delete(Question $question)
+    public function delete(int $id)
     {
-        abort_if(!auth()->user()->is_admin, Response::HTTP_FORBIDDEN, 403);
+        abort_if(!auth()->user()->is_admin, Response::HTTP_FORBIDDEN, '403');
 
+        $question = Question::findOrFail($id);
         $question->delete();
     }
 
-    public function render(): View
+    public function render()
     {
         $questions = Question::latest()->paginate();
 
+        // Trả về một view với dữ liệu
         return view('livewire.question.qusetion-list', compact('questions'));
     }
 }

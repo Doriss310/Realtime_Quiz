@@ -19,10 +19,10 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ('zLord'),
-            'email' => ('dqdung310@gmail.com'),
+            'name' => ('Mango'),
+            'email' => ('1'),
             'email_verified_at' => now(),
-            'password' => '$2y$10$PrS7ABhNO4aaUn00meJ1zuUZRe7ilgjZMxqDPBL7i.OQwM.v68Ypa', // password
+            'password' => bcrypt('1'),
             'remember_token' => Str::random(10),
         ];
     }

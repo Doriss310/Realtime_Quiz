@@ -7,12 +7,13 @@
     "require": {
         "php": "^8.1",
         "beyondcode/laravel-websockets": "^1.14",
+        "cboden/ratchet": "^0.4.4",
         "guzzlehttp/guzzle": "^7.0.0",
         "laravel/framework": "^10.8",
         "laravel/sanctum": "^3.2",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.8",
-        "livewire/livewire": "^2.12"
+        "livewire/livewire": "2.12"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
