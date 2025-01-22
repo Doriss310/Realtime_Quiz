@@ -2,6 +2,7 @@
 namespace App\Http\Livewire\Games;
 
 use App\Events\GameStarted;
+use App\Events\LoadSession;
 use App\Models\GameSession;
 use Livewire\Component;
 use App\Models\Quiz;
@@ -23,6 +24,7 @@ class HostGame extends Component
     {
         $this->quiz = $quiz;
         $this->session = $session;
+
         $this->players = $session->players()->get()->toArray();
         // Tạo game session mới
         $this->session = GameSession::create([
@@ -40,14 +42,14 @@ class HostGame extends Component
         ];
     }
 
-    public function startGame(GameSession $session)
+    public function startGame()
     {
         $this->session->update(['status' => 'playing']);
         $this->currentQuestionIndex = 0;
 
-        // Phát sự kiện GameStarted
-        event(new GameStarted($this->session));
+        broadcast(new GameStarted($this->session));
     }
+
 
     public function nextQuestion()
     {

@@ -41,8 +41,8 @@ Route::get('results/{test}', [ResultController::class, 'show'])->name('results.s
 
 Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/game/host/{quiz}', HostGame::class)->name('game.host');
-    Route::get('/game/join', PlayGame::class)->name('game.join');
-    Route::get('/game/play/{session}', PlayGame::class);
+    Route::get('/game/join', PlayGame::class)->name('game.join.index');
+    Route::get('/game/join/{session}', PlayGame::class)->name('game.join');
 });
 // protected routes
 Route::middleware('auth')->group(function () {

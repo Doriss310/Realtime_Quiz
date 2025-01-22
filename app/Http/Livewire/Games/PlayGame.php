@@ -45,18 +45,22 @@ class PlayGame extends Component
         $this->playerId = $player->id;
 
         broadcast(new PlayerJoined($session, $player));
+        return redirect()->route('game.join', ['session' => $session->id]);
+
     }
 
     public function handleGameStart($data)
     {
-        // Chuyển đến trang quiz.show khi game bắt đầu
-        $session = GameSession::find($this->sessionId);
+        if (isset($data['session']) && isset($data['session']['quiz'])) {
+            $url = route('quiz.show', ['quiz' => $data['session']['quiz']['slug']]);
+            \Log::info('Redirect URL', ['url' => $url]);
 
-            return redirect()->route('quiz.show', ['quiz' => $session->quiz->slug]);
-//        } else {
-//            session()->flash('error', 'Quiz not found');
-//            return redirect()->route('game.join');
-//        }
+            $this->emit('redirectToQuiz', $url);
+            $this->redirect($url);
+
+        } else {
+            \Log::error('Quiz not found or invalid session', ['sessionId' => $this->sessionId]);
+        }
     }
 
     public function render()

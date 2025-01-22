@@ -186,7 +186,7 @@ class Show extends Component
         }
 //dd($this->answersOfQuestions);
         $test->update(['result' => $result]);
-        return to_route('results.show', ['test' => $test]);
+        return to_route('leaderboard');
     }
 
     public function render(): View
