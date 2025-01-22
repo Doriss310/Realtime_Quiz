@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LeaderboardRoomController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Quiz\QuizController;
 use App\Http\Controllers\ResultController;
@@ -10,6 +11,7 @@ use App\Http\Livewire\Admin\Tests\TestList;
 use App\Http\Livewire\Front\Leaderboard;
 use App\Http\Livewire\Front\Results\ResultList;
 use App\Http\Livewire\Games\HostGame;
+use App\Http\Livewire\Games\Played;
 use App\Http\Livewire\Games\PlayGame;
 use App\Http\Livewire\Question\QuestionForm;
 use App\Http\Livewire\Question\QuestionList;
@@ -43,6 +45,9 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/game/host/{quiz}', HostGame::class)->name('game.host');
     Route::get('/game/join', PlayGame::class)->name('game.join.index');
     Route::get('/game/join/{session}', PlayGame::class)->name('game.join');
+    Route::get('/game/play/{session}/{quiz}', Played::class)->name('game.play');
+    Route::get('/leaderboard/{session}', [LeaderboardRoomController::class, 'show'])->name('leaderboard.show');
+
 });
 // protected routes
 Route::middleware('auth')->group(function () {

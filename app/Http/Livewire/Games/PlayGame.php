@@ -16,6 +16,7 @@ class PlayGame extends Component
     public $session;
     public $sessionStatus = 'waiting'; // Thêm
     public $playerId = null;
+    public $score = 0;
 
     protected $listeners = [
         'echo:game.{session.code},GameStarted' => 'handleGameStart'
@@ -23,7 +24,6 @@ class PlayGame extends Component
 
     public function mount(GameSession $session)
     {
-        $this->session = $session;
     }
 
     public function join()
@@ -37,7 +37,8 @@ class PlayGame extends Component
 
         $player = $session->players()->create([
             'user_id' => auth()->id(),
-            'name' => $this->playerName
+            'name' => $this->playerName,
+            'score' => $this->score
         ]);
 
         $this->sessionId = $session->id;
@@ -51,15 +52,38 @@ class PlayGame extends Component
 
     public function handleGameStart($data)
     {
-        if (isset($data['session']) && isset($data['session']['quiz'])) {
-            $url = route('quiz.show', ['quiz' => $data['session']['quiz']['slug']]);
-            \Log::info('Redirect URL', ['url' => $url]);
+        try {
+            if (!isset($data['session']) || !isset($data['session']['quiz'])) {
+                \Log::error('Invalid game start data structure', ['data' => $data]);
+                return;
+            }
+
+            $sessionId = $data['session']['id'];
+            $quizSlug = $data['session']['quiz']['slug'];
+
+            if (empty($sessionId) || empty($quizSlug)) {
+                \Log::error('Missing required game start data', [
+                    'sessionId' => $sessionId ?? null,
+                    'quizSlug' => $quizSlug ?? null
+                ]);
+                return;
+            }
+
+            $url = route('game.play', [
+                'session' => $sessionId,
+                'quiz' => $quizSlug
+            ]);
+
+            \Log::info('Redirecting to quiz', ['url' => $url]);
 
             $this->emit('redirectToQuiz', $url);
             $this->redirect($url);
 
-        } else {
-            \Log::error('Quiz not found or invalid session', ['sessionId' => $this->sessionId]);
+        } catch (\Exception $e) {
+            \Log::error('Error handling game start', [
+                'error' => $e->getMessage(),
+                'sessionId' => $this->sessionId
+            ]);
         }
     }
 

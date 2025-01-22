@@ -1,7 +1,6 @@
 <div>
-    @if(!$session)
+    @if(!$sessionId)
         <form wire:submit.prevent="join">
-            <input type="text" wire:model.defer="gameCode" placeholder="Enter Game Code">
             <input type="text" wire:model.defer="playerName" placeholder="Your Name">
             <button type="submit">Join Game</button>
         </form>

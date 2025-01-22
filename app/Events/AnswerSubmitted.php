@@ -11,35 +11,23 @@ use App\Models\GameSession;
 use App\Models\Player;
 class AnswerSubmitted implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public $gameSession;
-    public $player;
-    public $answer;
+    public $session_id;
+    public $player_id;
+    public $answer_id;
     public $score;
+    public $time_taken;
 
-    public function __construct(GameSession $gameSession, Player $player, $answer, $score)
+    public function __construct($data)
     {
-        $this->gameSession = $gameSession;
-        $this->player = $player;
-        $this->answer = $answer;
-        $this->score = $score;
+        $this->session_id = $data['session_id'];
+        $this->player_id = $data['player_id'];
+        $this->answer_id = $data['answer_id'];
+        $this->score = $data['score'];
+        $this->time_taken = $data['time_taken'];
     }
 
     public function broadcastOn()
     {
-        return new Channel('game.' . $this->gameSession->code);
-    }
-
-    public function broadcastWith()
-    {
-        return [
-            'player' => [
-                'id' => $this->player->id,
-                'name' => $this->player->name
-            ],
-            'answer' => $this->answer,
-            'score' => $this->score
-        ];
+        return new PrivateChannel('game.' . $this->session_id);
     }
 }
