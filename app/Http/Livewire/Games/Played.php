@@ -2,7 +2,9 @@
 
 namespace App\Http\Livewire\Games;
 
+use App\Events\AnswerSubmitted;
 use App\Models\GameSession;
+use App\Models\Player;
 use App\Models\Question;
 use App\Models\Option;
 use App\Models\Quiz;
@@ -143,12 +145,16 @@ class Played extends Component
             return;
         }
 
-        if ($this->isCorrect) {
-            $this->points++;
-        }
+//        if ($this->isCorrect) {
+//            // Cộng điểm cho người chơi
+//            $this->points++;
+
+            // Lấy player_id và session_code
+
+//        }
     }
 
-    private function checkAnswer()
+    public function checkAnswer()
     {
         $correctOptions = Option::whereIn('id', $this->selectedOptions)
             ->where('correct', true)
@@ -158,7 +164,7 @@ class Played extends Component
             ->count();
         $code_snippet = $this->currentQuestion->code_snippet;
 
-        if($this->currentQuestion->code_snippet === '') {
+        if ($this->currentQuestion->code_snippet === '') {
             $this->isCorrect = $correctOptions === $totalCorrectOptions &&
                 count($this->selectedOptions) === $totalCorrectOptions;
         } else {
@@ -167,8 +173,26 @@ class Played extends Component
                 trim($this->codeSnippetInput) === $code_snippet;
         }
         $this->showFeedback = true;
+
         if ($this->isCorrect) {
             $this->points++;
+
+            // Lấy player_id từ bảng Player
+            $player = Player::where('user_id', auth()->id()) // Hoặc bạn có thể lấy theo bất kỳ điều kiện nào khác
+            ->where('game_session_id', $this->session->id) // Điều kiện cho session
+            ->first();
+
+//            if ($player) {
+//                // Cập nhật điểm vào bảng Player
+//                $player->increment('score', $this->points); // Tăng điểm cho player
+//            }
+
+            // Broadcast AnswerSubmitted với player_id
+            broadcast(new AnswerSubmitted([
+                'id' => $player->id, // Lấy player_id từ object Player
+                'score' => $this->points,
+                'session_code' => $this->session->code
+            ]));
         }
     }
 

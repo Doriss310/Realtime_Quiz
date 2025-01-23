@@ -43,6 +43,11 @@
                     console.log('Player Joined:', event);
                     // Bạn có thể thêm logic để cập nhật danh sách người chơi
                 @this.call('handlePlayerJoined', event);
+                })
+                .listen('AnswerSubmitted', (event) => {
+                    console.log('Answer Submit:', event);
+
+                    @this.call('handleAnswer', event);
                 });
         });
     </script>

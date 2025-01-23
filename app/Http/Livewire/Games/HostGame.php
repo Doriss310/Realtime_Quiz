@@ -6,6 +6,7 @@ use App\Events\GameStarted;
 use App\Events\LoadSession;
 use App\Events\QuestionChanged;
 use App\Models\GameSession;
+use App\Models\Player;
 use Livewire\Component;
 use App\Models\Quiz;
 
@@ -103,27 +104,45 @@ class HostGame extends Component
 
     public function handleAnswer($data)
     {
+        \Log::info('Received answer data', ['data' => $data]);
+
+        // Kiểm tra xem 'player_id' có tồn tại trong mảng $data['data'] không
+        if (!isset($data['data']['player_id'])) {
+            \Log::error("Player ID not found in the answer data", ['data' => $data]);
+            return; // Dừng việc xử lý nếu player_id không có
+        }
+
         // Cập nhật điểm số cho người chơi
-        foreach ($this->players as &$player) {
-            if ($player['id'] === $data['player_id']) {
-                $player['score'] += $data['score'];
+        foreach ($this->players as $player) {
+            if (isset($player['id']) && $player['id'] === $data['data']['player_id']) {
+                $player['score'] += $data['data']['score'];
+                \Log::info("Player score updated", ['player_id' => $player['id'], 'new_score' => $player['score']]);
                 break;
             }
         }
-    }
 
+        // Cập nhật vào cơ sở dữ liệu
+        Player::where('id', $data['data']['player_id'])->update('score', $data['data']['score']);
+        \Log::info('Player score updated in database', ['player_id' => $data['data']['player_id']]);
+    }
     public function endGame()
     {
         // Cập nhật trạng thái session
         $this->session->update([
             'status' => 'finished',
-            'ended_at' => now()
         ]);
 
-        // Broadcast event kết thúc game
+        // Broadcast kết quả cuối cùng với điểm của tất cả người chơi
+        $players = Player::whereIn('id', array_column($this->players, 'id'))->get(); // Hoặc từ bảng users nếu cần
+
         broadcast(new GameEnded([
             'session_code' => $this->session->code,
-            'final_scores' => $this->players
+            'final_scores' => $players->map(function ($player) {
+                return [
+                    'player_id' => $player->id,
+                    'score' => $player->score
+                ];
+            })
         ]))->toOthers();
 
         // Chuyển hướng về trang leaderboard hoặc kết quả

@@ -74,7 +74,7 @@
 
                                 <div class="feedback-details">
                                     @if($isCorrect)
-                                        <p>Điểm: {{ ++$points }}</p>
+                                        <p>Điểm: {{ $points }}</p>
                                     @else
                                         <p>Điểm: {{ $points }}</p>
                                     @endif
@@ -117,7 +117,14 @@
                 console.log('GameEnded:', event);
 
                 @this.call('endGame', event);
-            });
+            })
+                .listen('AnswerSubmitted', (event) => {
+                    console.log('Player answered correctly:', event);
+                    // Cập nhật UI của người chơi ở frontend, như điểm số
+                })
+                .listen('PlayerInitialized', (event) => {
+                    console.log('PlayerInfo:', event);
+                })
         });
     </script>
 </div>

@@ -38,6 +38,7 @@ class PlayerJoined implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
+            'id' => $this->player->id,
             'name' => $this->player->name,
             'score' => $this->player->score,
         ];
