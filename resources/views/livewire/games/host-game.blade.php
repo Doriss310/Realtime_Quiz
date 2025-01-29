@@ -1,4 +1,11 @@
-
+@if($playerName === '')
+    <div wire:key="game-session-{{ $session->id }}">
+    <form wire:submit.prevent="createPlayer">
+        <input type="text" wire:model.defer="playerName" placeholder="Your Name">
+        <button type="submit">Create</button>
+    </form>
+    </div>
+@else
     <div wire:key="game-session-{{ $session->id }}">
             <h2 class="text-xl font-bold">Game Code: {{ $session->code }}</h2>
 
@@ -36,22 +43,25 @@
             </div>
         @endif
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            window.Echo.channel('game.{{ $session->code }}')
-                .listen('PlayerJoined', (event) => {
-                    console.log('Player Joined:', event);
-                    // Bạn có thể thêm logic để cập nhật danh sách người chơi
-                @this.call('handlePlayerJoined', event);
-                })
-                .listen('AnswerSubmitted', (event) => {
-                    console.log('Answer Submit:', event);
 
-                    @this.call('handleAnswer', event);
-                })
-                .listen('GameStarted', (event) => {
-                    console.log('Game Start:', event);
-                    @this.call('handleGameStarted', event);
-                });
-        });
-    </script>
+@endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.Echo.channel('game.{{ $session->code }}')
+            .listen('PlayerJoined', (event) => {
+                console.log('Player Joined:', event);
+                // Bạn có thể thêm logic để cập nhật danh sách người chơi
+            @this.call('handlePlayerJoined', event);
+            })
+            .listen('AnswerSubmitted', (event) => {
+                console.log('Answer Submit:', event);
+
+            @this.call('handleAnswer', event);
+            })
+            .listen('GameStarted', (event) => {
+                console.log('Game Start:', event);
+            @this.call('handleGameStarted', event);
+            });
+    });
+</script>

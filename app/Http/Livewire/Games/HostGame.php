@@ -18,6 +18,9 @@ class HostGame extends Component
     public $timer = 20;  // Thời gian cho mỗi câu hỏi
     public $currentTimer = 0;
     public $isTimerRunning = false;
+    public $playerName = '';
+    public $playerId = null;
+    public $score = 0;
     protected $listeners = [
         'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
         'echo:game.{session.code},GameStarted' => 'handleGameStarted',
@@ -27,7 +30,6 @@ class HostGame extends Component
     public function mount(Quiz $quiz, GameSession $session): void
     {
         $this->quiz = $quiz;
-        $this->session = $session;
         $this->players = $session->players()->get()->toArray();
 
         // Tạo game session mới
@@ -44,6 +46,25 @@ class HostGame extends Component
             'name' => $data['name'],
             'score' => $data['score'],
         ];
+    }
+
+    public function createPlayer(){
+        $this->validate([
+            'playerName' => 'required|min:3',
+            ]);
+
+        $player = $this->session->players()->create([
+            'user_id' => auth()->id(),
+            'name' => $this->playerName,
+            'score' => $this->score
+        ]);
+
+        $this->players[] = [
+            'name' => $player->name,
+            'score' => $player->score,
+        ];
+        $this->playerId = $player->id;
+
     }
 
     public function handleGameStarted($data)
@@ -72,7 +93,6 @@ class HostGame extends Component
             ]);
 
             \Log::info('Redirecting to quiz', ['url' => $url]);
-            $this->emit('redirectToQuiz', $url);
             $this->redirect($url);
 
         } catch (\Exception $e) {

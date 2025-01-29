@@ -10,7 +10,9 @@
                     <h2>Thực hành với hơn <strong class="question-count">1200+</strong> Câu hỏi</h2>
                 </div>
                 <div class="hero-button">
-                    <a class="btn-default btn--link large-btn" href="{{route('quiz.index')}}">Bắt đầu(miễn phí)</a>
+                    <a class="btn-default btn--link large-btn" href="{{route('quiz.index')}}">Bắt đầu(chơi đơn)</a>
+                    <a class="btn-default btn--link large-btn" href="http://127.0.0.1:8000/game/">Tạo phòng</a>
+
                 </div>
             </div>
         </div>

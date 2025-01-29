@@ -44,6 +44,7 @@ Route::get('results/{test}', [ResultController::class, 'show'])->name('results.s
 Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/game/host/{quiz}', HostGame::class)->name('game.host');
     Route::get('/game/join', PlayGame::class)->name('game.join.index');
+    Route::get('/game/create/{quiz}', HostGame::class)->name('game.create.index');
     Route::get('/game/join/{sessionId}', PlayGame::class)->name('game.join');
     Route::get('/game/play/{session}/{quiz}', Played::class)->name('game.play');
     Route::get('/leaderboard/{session}', [LeaderboardRoomController::class, 'show'])->name('leaderboard.show');
