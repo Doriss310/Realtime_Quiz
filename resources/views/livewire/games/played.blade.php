@@ -71,7 +71,6 @@
                                         <span class="emoji">😔</span> Sai rồi!
                                     @endif
                                 </div>
-
                                 <div class="feedback-details">
                                     @if($isCorrect)
                                         <p>Điểm: {{ $points }}</p>
@@ -97,6 +96,11 @@
                                         <p class="font-bold">Đáp án đúng:</p>
                                         <pre class="code-preview">{{ $currentQuestion->code_snippet }}</pre>
                                     @endif
+                                        <button type="button"
+                                                class="next-question-btn"
+                                                wire:click="nextQuestion">
+                                            Next Question
+                                        </button>
                                     @endif
                                 </div>
                             </div>
@@ -116,7 +120,7 @@
             .listen('GameEnded', (event) => {
                 console.log('GameEnded:', event);
 
-                @this.call('endGame', event);
+                @this.call('GameEnded', event);
             })
                 .listen('AnswerSubmitted', (event) => {
                     console.log('Player answered correctly:', event);

@@ -11,6 +11,7 @@ use App\Models\Quiz;
 use App\Models\Test;
 use App\Models\Answer;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
@@ -29,16 +30,20 @@ class Played extends Component
     public $points = 0;
     public $codeSnippetInput = '';
     public $timer = 20;
+    public $playerId = null;
 
     protected $listeners = [
         'echo:game.{session.code},QuestionChanged' => 'handleQuestionChanged',
         'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
-        'echo:game.{session.code},GameEnded' => 'handleGameEnded',
         'questionChanged' => 'handleQuestionChanged'
     ];
 
-    public function mount(Quiz $quiz, GameSession $session)
+    public function mount(Quiz $quiz, GameSession $session, Request $request)
     {
+        if ($request->query('playerId')) {
+            $this->playerId = $request->query('playerId');
+        }
+
         $this->quiz = $quiz;
         $this->session = $session;
         $this->startTimeInSeconds = now()->timestamp;
@@ -141,44 +146,39 @@ class Played extends Component
     public function nextQuestion()
     {
         if (!$this->showFeedback) {
-            $this->checkAnswer();
+            $correctOptions = Option::whereIn('id', $this->selectedOptions)
+                ->where('correct', true)
+                ->count();
+            $totalCorrectOptions = $this->currentQuestion->options()
+                ->where('correct', true)
+                ->count();
+            $code_snippet = $this->currentQuestion->code_snippet;
+
+            if ($this->currentQuestion->code_snippet === '') {
+                $this->isCorrect = $correctOptions === $totalCorrectOptions &&
+                    count($this->selectedOptions) === $totalCorrectOptions;
+            } else {
+                $this->isCorrect = $correctOptions === $totalCorrectOptions &&
+                    count($this->selectedOptions) === $totalCorrectOptions ||
+                    trim($this->codeSnippetInput) === $code_snippet;
+            }
+            $this->showFeedback = true;
             return;
         }
 
-//        if ($this->isCorrect) {
-//            // Cộng điểm cho người chơi
-//            $this->points++;
+        $this->answersOfQuestions[$this->currentQuestionIndex] = [
+            'selected_options' => $this->selectedOptions,
+            'code_snippet' => $this->codeSnippetInput,
+            'is_correct' => $this->isCorrect
+        ];
 
-            // Lấy player_id và session_code
-
-//        }
-    }
-
-    public function checkAnswer()
-    {
-        $correctOptions = Option::whereIn('id', $this->selectedOptions)
-            ->where('correct', true)
-            ->count();
-        $totalCorrectOptions = $this->currentQuestion->options()
-            ->where('correct', true)
-            ->count();
-        $code_snippet = $this->currentQuestion->code_snippet;
-
-        if ($this->currentQuestion->code_snippet === '') {
-            $this->isCorrect = $correctOptions === $totalCorrectOptions &&
-                count($this->selectedOptions) === $totalCorrectOptions;
-        } else {
-            $this->isCorrect = $correctOptions === $totalCorrectOptions &&
-                count($this->selectedOptions) === $totalCorrectOptions ||
-                trim($this->codeSnippetInput) === $code_snippet;
-        }
-        $this->showFeedback = true;
-
-        if ($this->isCorrect) {
-            $this->points++;
+            if ($this->isCorrect) {
+                $this->points++;
+            }
+            $this->showFeedback = false;
 
             // Lấy player_id từ bảng Player
-            $player = Player::where('user_id', auth()->id()) // Hoặc bạn có thể lấy theo bất kỳ điều kiện nào khác
+            $player = Player::where('id', $this->playerId) // Hoặc bạn có thể lấy theo bất kỳ điều kiện nào khác
             ->where('game_session_id', $this->session->id) // Điều kiện cho session
             ->first();
 
@@ -186,17 +186,35 @@ class Played extends Component
 //                // Cập nhật điểm vào bảng Player
 //                $player->increment('score', $this->points); // Tăng điểm cho player
 //            }
+            if ($this->currentQuestionIndex >= $this->questionsCount - 1) {
+                $player->update([
+                    'score' => $this->points,
+                ]);
+                return $this->GameEnded();
+            }
+            $this->currentQuestionIndex++;
+            $this->currentQuestion = $this->questions[$this->currentQuestionIndex];
+            $this->cacheCurrentOptions();
 
-            // Broadcast AnswerSubmitted với player_id
-            broadcast(new AnswerSubmitted([
-                'id' => $player->id, // Lấy player_id từ object Player
-                'score' => $this->points,
-                'session_code' => $this->session->code
-            ]));
-        }
+            // Khôi phục các lựa chọn đã chọn trước đó (nếu có)
+            $this->selectedOptions = [];
+            $this->codeSnippetInput = '';
+            $this->isCorrect = false;
+
     }
 
-    public function endGame(){
+    public function checkAnswer()
+    {
+
+            // Broadcast AnswerSubmitted với player_id
+//            broadcast(new AnswerSubmitted([
+//                'id' => $player->id, // Lấy player_id từ object Player
+//                'score' => $this->points,
+//                'session_code' => $this->session->code
+//            ]));
+    }
+
+    public function GameEnded(){
         return redirect()->route('leaderboard.show', ['session' => $this->session->id]);
     }
 //        public function submit()

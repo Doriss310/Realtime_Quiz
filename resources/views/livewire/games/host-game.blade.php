@@ -7,7 +7,7 @@
             <h3 class="text-lg font-semibold mb-2">Players Joined ({{ count($players) }}):</h3>
                 @foreach($players as $player)
             <div>
-                <div class="p-3 rounded shadow">
+                <div class="p-3 rounded">
                         <div class="flex items-center justify-between">
                             <span class="font-medium">Player: {{ $player['name'] ?? 'Unknown' }}</span>
                         </div>
@@ -48,6 +48,10 @@
                     console.log('Answer Submit:', event);
 
                     @this.call('handleAnswer', event);
+                })
+                .listen('GameStarted', (event) => {
+                    console.log('Game Start:', event);
+                    @this.call('handleGameStarted', event);
                 });
         });
     </script>

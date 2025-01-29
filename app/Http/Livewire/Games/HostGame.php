@@ -3,7 +3,6 @@ namespace App\Http\Livewire\Games;
 
 use App\Events\GameEnded;
 use App\Events\GameStarted;
-use App\Events\LoadSession;
 use App\Events\QuestionChanged;
 use App\Models\GameSession;
 use App\Models\Player;
@@ -21,10 +20,11 @@ class HostGame extends Component
     public $isTimerRunning = false;
     protected $listeners = [
         'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
-        'echo:game.{session.code},AnswerSubmitted' => 'handleAnswer'
+        'echo:game.{session.code},GameStarted' => 'handleGameStarted',
+//        'echo:game.{session.code},AnswerSubmitted' => 'handleAnswer'
     ];
 
-    public function mount(Quiz $quiz, GameSession $session)
+    public function mount(Quiz $quiz, GameSession $session): void
     {
         $this->quiz = $quiz;
         $this->session = $session;
@@ -44,6 +44,43 @@ class HostGame extends Component
             'name' => $data['name'],
             'score' => $data['score'],
         ];
+    }
+
+    public function handleGameStarted($data)
+    {
+        try {
+            if (!isset($data['session']) || !isset($data['session']['quiz'])) {
+                \Log::error('Invalid game start data structure', ['data' => $data]);
+                return;
+            }
+
+            $sessionId = $data['session']['id'];
+            $quizSlug = $data['session']['quiz']['slug'];
+
+            if (empty($sessionId) || empty($quizSlug)) {
+                \Log::error('Missing required game start data', [
+                    'sessionId' => $sessionId ?? null,
+                    'quizSlug' => $quizSlug ?? null
+                ]);
+                return;
+            }
+
+            $url = route('game.play', [
+                'session' => $sessionId,
+                'quiz' => $quizSlug,
+                'playerId' => $this->playerId
+            ]);
+
+            \Log::info('Redirecting to quiz', ['url' => $url]);
+            $this->emit('redirectToQuiz', $url);
+            $this->redirect($url);
+
+        } catch (\Exception $e) {
+            \Log::error('Error handling game start', [
+                'error' => $e->getMessage(),
+                'sessionId' => $this->session->id
+            ]);
+        }
     }
 
     public function startGame()
@@ -68,63 +105,45 @@ class HostGame extends Component
             $currentQuestion,
             $this->timer,
             $this->currentQuestionIndex
-        ))->toOthers();
-
-        $this->startTimer();
+        ));
     }
 
-    public function startTimer(){
-        $this->currentTimer = $this->timer;
-        $this->isTimerRunning = true;
+//    public function nextQuestion()
+//    {
+//        $this->isTimerRunning = false;
+//
+//        $questionsCount = $this->session->quiz->questions->count();
+//
+//        if ($this->currentQuestionIndex + 1 < $questionsCount) {
+//            $this->currentQuestionIndex++;
+//            $this->startQuestion();
+//        }
+//    }
 
-        $this->dispatchBrowserEvent('startTimer', [
-            'duration' => $this->timer,
-            'sessionCode' => $this->session->code,
-        ]);
-    }
-
-
-    public function nextQuestion()
-    {
-        $this->isTimerRunning = false;
-
-        $questionsCount = $this->session->quiz->questions->count();
-        \Log::info('Total Questions: ', ['count' => $questionsCount]);
-        \Log::info('Current Question Index Before Increment: ', ['index' => $this->currentQuestionIndex]);
-
-        if ($this->currentQuestionIndex + 1 < $questionsCount) {
-            $this->currentQuestionIndex++;
-            \Log::info('Current Question Index After Increment: ', ['index' => $this->currentQuestionIndex]);
-            $this->startQuestion();
-        } else {
-            \Log::info('Game Ending Triggered.');
-            $this->endGame();
-        }
-    }
-
-    public function handleAnswer($data)
-    {
-        \Log::info('Received answer data', ['data' => $data]);
-
-        // Kiểm tra xem 'player_id' có tồn tại trong mảng $data['data'] không
-        if (!isset($data['data']['player_id'])) {
-            \Log::error("Player ID not found in the answer data", ['data' => $data]);
-            return; // Dừng việc xử lý nếu player_id không có
-        }
-
-        // Cập nhật điểm số cho người chơi
-        foreach ($this->players as $player) {
-            if (isset($player['id']) && $player['id'] === $data['data']['player_id']) {
-                $player['score'] += $data['data']['score'];
-                \Log::info("Player score updated", ['player_id' => $player['id'], 'new_score' => $player['score']]);
-                break;
-            }
-        }
-
-        // Cập nhật vào cơ sở dữ liệu
-        Player::where('id', $data['data']['player_id'])->update('score', $data['data']['score']);
-        \Log::info('Player score updated in database', ['player_id' => $data['data']['player_id']]);
-    }
+//    public function handleAnswer($data)
+//    {
+//        \Log::info('Received answer data', ['data' => $data]);
+//
+//        // Kiểm tra xem 'player_id' có tồn tại trong mảng $data['data'] không
+//        if (!isset($data['data']['id'])) {
+//            \Log::error("Player ID not found in the answer data", ['data' => $data]);
+//            return; // Dừng việc xử lý nếu player_id không có
+//        }
+//
+//        // Cập nhật điểm số cho người chơi
+//        foreach ($this->players as $player) {
+//            if (isset($player['id']) && $player['id'] === $data['data']['id']) {
+//                $player['score'] = $data['data']['score'];
+//                \Log::info("Player score updated", ['player_id' => $player['id'], 'new_score' => $player['score']]);
+//                break;
+//            }
+//        }
+//
+//        // Cập nhật vào cơ sở dữ liệu
+//        Player::where('id', $data['data']['id'])
+//            ->update(['score' => $data['data']['score']]);
+//        \Log::info('Player score updated in database', ['player_id' => $data['data']['id']]);
+//    }
     public function endGame()
     {
         // Cập nhật trạng thái session
@@ -132,24 +151,25 @@ class HostGame extends Component
             'status' => 'finished',
         ]);
 
-        // Broadcast kết quả cuối cùng với điểm của tất cả người chơi
-        $players = Player::whereIn('id', array_column($this->players, 'id'))->get(); // Hoặc từ bảng users nếu cần
+        // Lấy danh sách người chơi trong session
+        $players = Player::where('game_session_id', $this->session->id)->get();
 
+        \Log::info('Players retrieved from database', [
+            'players_count' => $players->count(),
+            'player_details' => $players->toArray()
+        ]);
+
+        // Broadcast kết quả cuối cùng
         broadcast(new GameEnded([
             'session_code' => $this->session->code,
             'final_scores' => $players->map(function ($player) {
                 return [
                     'player_id' => $player->id,
-                    'score' => $player->score
+                    'player_name' => $player->user->name ?? 'Unknown', // Lấy tên người chơi
+                    'score' => $player->score ?? 0  // Mặc định 0 nếu không có điểm
                 ];
             })
         ]))->toOthers();
-
-        // Chuyển hướng về trang leaderboard hoặc kết quả
-//        return redirect()->route('leaderboard.show', ['session' => $this->session->id]);
-//        return redirect()->route('game.results', [
-//            'session' => $this->session->code
-//        ]);
     }
 
     public function render()
