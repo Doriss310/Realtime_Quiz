@@ -31,12 +31,6 @@
             >
                 Start Game
             </button>
-            <button
-                wire:click="nextQuestion"
-                class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-                Next Question
-            </button>
         @else
             <div class="text-gray-500">
                 Waiting for players to join...

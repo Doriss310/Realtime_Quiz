@@ -12,6 +12,7 @@
                 <div class="hero-button">
                     <a class="btn-default btn--link large-btn" href="{{route('quiz.index')}}">Bắt đầu(chơi đơn)</a>
                     <a class="btn-default btn--link large-btn" href="http://127.0.0.1:8000/game/">Tạo phòng</a>
+                    <a class="btn-default btn--link large-btn" href="http://127.0.0.1:8000/game/join">Vào phòng</a>
 
                 </div>
             </div>

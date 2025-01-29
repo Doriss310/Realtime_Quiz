@@ -1,18 +1,21 @@
-<div x-data="{
-    secondsLeft: {{ config('quiz.secondsPerQuestion') }},
-    selectedAnswer: null
-}"
-     x-init="setInterval(() => {
-        if (secondsLeft > 1) { secondsLeft--; } else {
-            secondsLeft = {{ config('quiz.secondsPerQuestion') }};
-            $wire.nextQuestion();
-        }
-    }, 1000);">
+{{--<div x-data="{--}}
+{{--    secondsLeft: {{ config('quiz.secondsPerQuestion') }},--}}
+{{--    selectedAnswer: null--}}
+{{--}"--}}
+{{--     x-init="setInterval(() => {--}}
+{{--        if (secondsLeft > 1) { secondsLeft--; } else {--}}
+{{--            secondsLeft = {{ config('quiz.secondsPerQuestion') }};--}}
+{{--            $wire.nextQuestion();--}}
+{{--        }--}}
+{{--    }, 1000);">--}}
 
     <div id="root">
         @vite('resources/css/app.css')
         <a class="btn-default btn--link" href="/">Trang chủ</a>
         <div class="quiz-container">
+            <div>
+                <p>Player: {{$player->name}}</p>
+            </div>
             <div class="quiz-text text-white">
                 <p>Câu hỏi {{ $currentQuestionIndex + 1 }} / {{ $this->questionsCount }}</p>
                 <p>Điểm: {{ $points }}</p>
@@ -49,7 +52,7 @@
                     @endif
                     @if ($currentQuestionIndex < $this->questionsCount - 1)
                         <button class="select-btns submit-btn"
-                                x-on:click="secondsLeft = {{ config('quiz.secondsPerQuestion') }}; selectedAnswer = null; $wire.nextQuestion();"
+                                wire:click="nextQuestion"
                                 @if($showFeedback) disabled @endif>
                             Tiếp tục
                         </button>
@@ -131,7 +134,7 @@
                 })
         });
     </script>
-</div>
+{{--</div>--}}
 
 <style>
     .answers-btns {

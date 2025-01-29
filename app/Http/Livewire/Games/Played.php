@@ -31,6 +31,7 @@ class Played extends Component
     public $codeSnippetInput = '';
     public $timer = 20;
     public $playerId = null;
+    public $player = null;
 
     protected $listeners = [
         'echo:game.{session.code},QuestionChanged' => 'handleQuestionChanged',
@@ -38,15 +39,15 @@ class Played extends Component
         'questionChanged' => 'handleQuestionChanged'
     ];
 
-    public function mount(Quiz $quiz, GameSession $session, Request $request)
+    public function mount(Quiz $quiz, GameSession $session, Request $request, int $player = null)
     {
         if ($request->query('playerId')) {
             $this->playerId = $request->query('playerId');
         }
+        $this->player = Player::where('id', $this->playerId)->firstOrFail();
 
         $this->quiz = $quiz;
         $this->session = $session;
-        $this->startTimeInSeconds = now()->timestamp;
 
         $this->questions = Question::query()
             ->whereHas('quizzes', function ($query) {

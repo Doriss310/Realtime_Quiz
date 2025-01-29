@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardRoomController;
 use App\Http\Controllers\ProfileController;
@@ -41,10 +42,11 @@ Route::middleware('throttle:60,1')->group(function () {
 });
 Route::get('results/{test}', [ResultController::class, 'show'])->name('results.show');
 
+
 Route::middleware(['auth', 'web'])->group(function () {
     Route::get('/game/host/{quiz}', HostGame::class)->name('game.host');
+    Route::get('/game', [GameController::class, 'index'])->name('game.index');
     Route::get('/game/join', PlayGame::class)->name('game.join.index');
-    Route::get('/game/create/{quiz}', HostGame::class)->name('game.create.index');
     Route::get('/game/join/{sessionId}', PlayGame::class)->name('game.join');
     Route::get('/game/play/{session}/{quiz}', Played::class)->name('game.play');
     Route::get('/leaderboard/{session}', [LeaderboardRoomController::class, 'show'])->name('leaderboard.show');

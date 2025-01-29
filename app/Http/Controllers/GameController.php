@@ -15,6 +15,11 @@ class GameController extends Controller
         return view('front.games.played', compact('quiz'));
     }
 
+    public function index(){
+        $quizzes = Quiz::all();
+        return view('livewire.games.index', compact('quizzes'));
+    }
+
 //    public function showQuestion($questionNumber, $totalQuestions)
 //    {
 //        // Lấy danh sách các question ID được lưu trong session
