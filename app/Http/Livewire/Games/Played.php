@@ -22,7 +22,6 @@ class Played extends Component
     public Question $currentQuestion;
     public int $currentQuestionIndex = 0;
     public array $answersOfQuestions = [];
-    public int $startTimeInSeconds = 0;
     public $selectedOptions = [];
     public $currentOptions = [];
     public $showFeedback = false;
@@ -30,13 +29,17 @@ class Played extends Component
     public $points = 0;
     public $codeSnippetInput = '';
     public $timer = 20;
+    public $currentTimer = 0;
+    public $isTimerRunning = false;
+    public $timerEnabled = true;
     public $playerId = null;
     public $player = null;
 
     protected $listeners = [
         'echo:game.{session.code},QuestionChanged' => 'handleQuestionChanged',
         'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
-        'questionChanged' => 'handleQuestionChanged'
+        'questionChanged' => 'handleQuestionChanged',
+        'timeUp' => 'handleTimeUp'
     ];
 
     public function mount(Quiz $quiz, GameSession $session, Request $request, int $player = null)
@@ -44,10 +47,21 @@ class Played extends Component
         if ($request->query('playerId')) {
             $this->playerId = $request->query('playerId');
         }
+
         $this->player = Player::where('id', $this->playerId)->firstOrFail();
 
         $this->quiz = $quiz;
         $this->session = $session;
+
+        $this->timerEnabled = $session->timer_enabled;
+        if($this->timerEnabled){
+            $this->timer = $session->timer_limit ?? 20;
+        }
+        if ($this->timerEnabled) {
+            $this->currentTimer = $this->timer;
+            $this->isTimerRunning = true;
+            $this->startTimer();
+        }
 
         $this->questions = Question::query()
             ->whereHas('quizzes', function ($query) {
@@ -70,7 +84,13 @@ class Played extends Component
         ]);
     }
 
-
+    public function handleTimeUp()
+    {
+        if ($this->isTimerRunning) {
+            $this->isTimerRunning = false;
+            $this->nextQuestion();
+        }
+    }
     private function cacheCurrentOptions()
     {
         $this->currentOptions = $this->currentQuestion->options->map(function ($option) {
@@ -109,7 +129,7 @@ class Played extends Component
         }
 
         // Cập nhật timer
-        $this->timer = $data['timer'];
+
 
         // Cập nhật câu hỏi mới
         $this->currentQuestionIndex = $data['question_index'];
@@ -121,12 +141,15 @@ class Played extends Component
         // Cập nhật options mới
         $this->cacheCurrentOptions();
 
-        // Bắt đầu timer mới
+    }
+    private function startTimer()
+    {
+        if (!$this->timerEnabled) return;
+
         $this->dispatchBrowserEvent('startTimer', [
             'duration' => $this->timer
         ]);
     }
-
     private function saveCurrentAnswer()
     {
         $this->answersOfQuestions[$this->currentQuestionIndex] = [
@@ -142,6 +165,10 @@ class Played extends Component
         $this->codeSnippetInput = '';
         $this->showFeedback = false;
         $this->isCorrect = false;
+        if($this->timerEnabled){
+            $this->currentTimer = $this->timer;
+            $this->isTimerRunning = true;
+        }
     }
 
     public function nextQuestion()
@@ -204,70 +231,10 @@ class Played extends Component
 
     }
 
-    public function checkAnswer()
-    {
-
-            // Broadcast AnswerSubmitted với player_id
-//            broadcast(new AnswerSubmitted([
-//                'id' => $player->id, // Lấy player_id từ object Player
-//                'score' => $this->points,
-//                'session_code' => $this->session->code
-//            ]));
-    }
-
     public function GameEnded(){
-        return redirect()->route('leaderboard.show', ['session' => $this->session->id]);
+        session(['leaderboard_session_id' => $this->session->id]);
+        return redirect()->route('leaderboard.show');
     }
-//        public function submit()
-//    {
-//        $result = 0;
-//        $test = Test::create([
-//            'user_id' => auth()->id(),
-//            'quiz_id' => $this->quiz->id,
-//            'result' => 0,
-//            'ip_address' => request()->ip(),
-////            'time_spent' => now()->timestamp - $this->startTimeInSeconds
-//        ]);
-//
-//        foreach ($this->answersOfQuestions as $key => $answer) {
-//            $question = $this->questions[$key];
-//
-//            // Thay đổi điều kiện kiểm tra
-//            if (!empty($answer['code_snippet'])) {  // Kiểm tra nếu code_snippet có giá trị
-//                $code_answer = $answer['code_snippet'];
-//                $isCorrect = trim($code_answer) === trim($question->code_snippet);
-//                if ($isCorrect) $result++;
-//                Answer::create([
-//                    'user_id' => auth()->id(),
-//                    'test_id' => $test->id,
-//                    'question_id' => $question->id,
-//                    'code_answer' => $code_answer,
-//                    'correct' => $isCorrect ? 1 : 0
-//                ]);
-//            } elseif (!empty($answer['selected_options'])) {  // Kiểm tra nếu có selected_options
-//                $optionIds = $answer['selected_options'];
-//                $correctOptions = $question->options()->where('correct', true)->pluck('id')->toArray();
-//
-//                sort($optionIds);
-//                sort($correctOptions);
-//
-//                $isCorrect = $optionIds === $correctOptions;
-//                if ($isCorrect) $result++;
-//
-//                foreach ($optionIds as $optionId) {
-//                    Answer::create([
-//                        'user_id' => auth()->id(),
-//                        'test_id' => $test->id,
-//                        'question_id' => $question->id,
-//                        'option_id' => $optionId,
-//                        'correct' => $isCorrect ? 1 : 0
-//                    ]);
-//                }
-//            }
-//        }
-////dd($this->answersOfQuestions);
-//        $test->update(['result' => $result]);
-//    }
 
     public function render(): View
     {

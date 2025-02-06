@@ -10,7 +10,7 @@ class GameSession extends Model
 {
 
     protected $with = ['players'];
-    protected $fillable = ['code', 'quiz_id', 'host_id', 'status'];
+    protected $fillable = ['code', 'quiz_id', 'host_id', 'status', 'timer_limit', 'timer_enabled'];
 
     protected static function boot()
     {

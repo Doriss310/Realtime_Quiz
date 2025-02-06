@@ -1,25 +1,34 @@
-{{--<div x-data="{--}}
-{{--    secondsLeft: {{ config('quiz.secondsPerQuestion') }},--}}
-{{--    selectedAnswer: null--}}
-{{--}"--}}
-{{--     x-init="setInterval(() => {--}}
-{{--        if (secondsLeft > 1) { secondsLeft--; } else {--}}
-{{--            secondsLeft = {{ config('quiz.secondsPerQuestion') }};--}}
-{{--            $wire.nextQuestion();--}}
-{{--        }--}}
-{{--    }, 1000);">--}}
+@if($timerEnabled)
+    <div x-data="{
+    secondsLeft: {{$session->timer_limit}},
+    selectedAnswer: null
+}"
+         x-init="setInterval(() => {
+        if (secondsLeft > 1) { secondsLeft--; } else {
+            secondsLeft = {{$session->timer_limit}};
+            $wire.nextQuestion();
+        }
+    }, 1000);">
+@endif
 
     <div id="root">
         @vite('resources/css/app.css')
-        <a class="btn-default btn--link" href="/">Trang chủ</a>
+        <div>
+            <a class="btn-default btn--link" href="/">Trang chủ</a>
+            @if($timerEnabled)
+            <h2 class="text-2xl" style="text-align: center">Thời gian: <span x-text="secondsLeft"></span></h2>
+            @endif
+        </div>
         <div class="quiz-container">
             <div>
                 <p>Player: {{$player->name}}</p>
             </div>
             <div class="quiz-text text-white">
                 <p>Câu hỏi {{ $currentQuestionIndex + 1 }} / {{ $this->questionsCount }}</p>
+
                 <p>Điểm: {{ $points }}</p>
             </div>
+            <div></div>
 
             <h2 class="mb-4 text-2xl" style="text-align: center">Câu hỏi {{ $currentQuestionIndex + 1 }}</h2>
 
@@ -40,12 +49,12 @@
                     @if($currentQuestion->code_snippet !== null)
                         <div class="code-snippet-container">
                             <label class="block text-sm font-medium text-white mb-2">
-                                Nhập câu trả lời:
+                                Hoặc nhập câu trả lời:
                             </label>
                             <textarea
                                 wire:model="codeSnippetInput"
                                 class="w-full h-25 p-3 border rounded-md font-mono"
-                                placeholder="Nhập code ở đây"
+                                placeholder="Nhập câu trả lời ở đây"
                                 @if($showFeedback) disabled @endif
                     ></textarea>
                         </div>
@@ -112,6 +121,9 @@
             </div>
         </div>
     </div>
+        @if($timerEnabled)
+    </div>
+      @endif
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             window.Echo.channel('game.{{ $session->code }}')

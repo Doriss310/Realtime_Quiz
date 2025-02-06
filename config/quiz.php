@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'secondsPerQuestion' => 60,
+    'secondsPerQuestion' => 20,
 ];

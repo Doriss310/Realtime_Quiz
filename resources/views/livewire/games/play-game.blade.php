@@ -1,13 +1,20 @@
-<div>
+<div class="flex justify-center items-center">
     @if(!$session)
-        <form wire:submit.prevent="join">
-            <input type="text" wire:model.defer="gameCode" placeholder="Enter Game Code">
-            <input type="text" wire:model.defer="playerName" placeholder="Your Name">
-            <button type="submit">Join Game</button>
+        <form wire:submit.prevent="join" style="
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+">
+            <input type="text" wire:model.defer="gameCode" placeholder="Enter Game Code" class="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <input type="text" wire:model.defer="playerName" placeholder="Your Name" class=" w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500" required>
+            <button type="submit" class="btn-default btn--link  w-full bg-green-500 text-black py-2 rounded-lg hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none transition" style="
+             width: 220px;">Join Game</button>
         </form>
     @elseif($sessionStatus === 'waiting')
-        <div>
-            Waiting for host to start the game...
+        <div class="text-center">
+            <h3>Waiting for host to start the game...</h3>
         </div>
     @endif
 
