@@ -2,6 +2,11 @@
 @include('layouts.navigation')
 @vite('resources/css/app.css')
 <div> <!-- Bọc toàn bộ nội dung trong một root element -->
+    @if (session()->has('message'))
+        <div class="alert alert-success">
+            {{ session('message') }}
+        </div>
+    @endif
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             Questions

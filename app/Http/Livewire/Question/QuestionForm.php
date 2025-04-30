@@ -13,9 +13,12 @@ class QuestionForm extends Component
     public array $options = [];
 
     public bool $editing = false;
+    public $enableTimer = true;
 
     protected $rules = [
         'question.text' => 'required|string',
+        'question.timer_enabled' => 'required|boolean',
+        'question.timer_limit' => 'nullable|integer|min:5|max:120',
         'question.code_snippet' => 'nullable|string',
         'question.answer_explanation' => 'nullable|string',
         'question.more_info_link' => 'nullable|url',
@@ -26,6 +29,7 @@ class QuestionForm extends Component
     public function mount(Question $question): Void
     {
         $this->question = $question;
+
 
         if ($this->question->exists) {
             $this->editing = true;

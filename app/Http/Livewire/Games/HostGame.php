@@ -1,11 +1,8 @@
 <?php
 namespace App\Http\Livewire\Games;
 
-use App\Events\GameEnded;
 use App\Events\GameStarted;
-use App\Events\QuestionChanged;
 use App\Models\GameSession;
-use App\Models\Player;
 use Livewire\Component;
 use App\Models\Quiz;
 
@@ -16,20 +13,15 @@ class HostGame extends Component
     public $quiz;
     public $currentQuestionIndex = 0;  // -1 là đang ở waiting room
     public $timer = 20;  // Thời gian cho mỗi câu hỏi
-    public $currentTimer = 0;
-    public $isTimerRunning = false;
     public $playerName = '';
     public $playerId = null;
     public $score = 0;
-    public $enableTimer = true;
-    public $customTimer = 20;
     protected $listeners = [
         'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
         'echo:game.{session.code},GameStarted' => 'handleGameStarted',
     ];
     protected $rules = [
         'playerName' => 'required|min:3',
-        'customTimer' => 'required|integer|min:5|max:120',
     ];
 
     public function mount(Quiz $quiz, GameSession $session): void
@@ -42,8 +34,6 @@ class HostGame extends Component
             'quiz_id' => $this->quiz->id,
             'host_id' => auth()->id(),
             'status' => 'waiting',
-            'timer_limit' => $this->customTimer,
-            'timer_enabled' => $this->enableTimer,
         ]);
     }
 
@@ -64,22 +54,16 @@ class HostGame extends Component
             'score' => $this->score
         ]);
 
-        $this->session->update([
-            'timer_limit' => $this->enableTimer ? $this->customTimer : null,
-            'timer_enabled' => $this->enableTimer
-        ]);
 
         $this->players[] = [
             'name' => $player->name,
             'score' => $player->score,
         ];
         $this->playerId = $player->id;
-        $this->timer = $this->customTimer;
     }
 
     public function handleGameStarted($data)
     {
-        try {
             $sessionId = $data['session']['id'];
             $quizSlug = $data['session']['quiz']['slug'];
 
@@ -89,15 +73,7 @@ class HostGame extends Component
                 'playerId' => $this->playerId
             ]);
 
-            \Log::info('Redirecting to quiz', ['url' => $url]);
             $this->redirect($url);
-
-        } catch (\Exception $e) {
-            \Log::error('Error handling game start', [
-                'error' => $e->getMessage(),
-                'sessionId' => $this->session->id
-            ]);
-        }
     }
 
     public function startGame()
@@ -114,15 +90,7 @@ class HostGame extends Component
         if (!$this->quiz) return;
 
         $currentQuestion = $this->quiz->questions[$this->currentQuestionIndex];
-        $this->currentTimer = $this->enableTimer ? $this->timer : null;
-        $this->isTimerRunning = $this->enableTimer;
 
-//        broadcast(new QuestionChanged(
-//            $this->session,
-//            $currentQuestion,
-//            $this->currentTimer,
-//            $this->currentQuestionIndex
-//        ));
     }
     public function render()
     {

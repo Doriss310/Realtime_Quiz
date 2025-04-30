@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\GameController;
+use App\Http\Controllers\MultiplePlayerGameController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardRoomController;
 use App\Http\Controllers\ProfileController;
@@ -35,7 +35,6 @@ use Illuminate\Support\Facades\Route;
 // public routes
 Route::get('/quiz', [QuizController::class, 'index'])->name('quiz.index');
 Route::get('/', [HomeController::class, 'home'])->name('home');
-Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('quiz/{quiz}', [QuizController::class, 'show'])->name('quiz.show');
@@ -43,27 +42,26 @@ Route::middleware('throttle:60,1')->group(function () {
 Route::get('results/{test}', [ResultController::class, 'show'])->name('results.show');
 
 
-Route::middleware(['auth', 'web'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/game/host/{quiz}', HostGame::class)->name('game.host');
-    Route::get('/game', [GameController::class, 'index'])->name('game.index');
+    Route::get('/game', [MultiplePlayerGameController::class, 'index'])->name('game.index');
     Route::get('/game/join', PlayGame::class)->name('game.join.index');
     Route::get('/game/join/{sessionId}', PlayGame::class)->name('game.join');
     Route::get('/game/play/{session}/{quiz}', Played::class)->name('game.play');
     Route::get('/leaderboard/room', [LeaderboardRoomController::class, 'show'])->name('leaderboard.show');
 
 });
-// protected routes
+
 Route::middleware('auth')->group(function () {
-    Route::get('leaderboard', Leaderboard::class)->name('leaderboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
+    Route::get('leaderboard', Leaderboard::class)->name('leaderboard');
     Route::get('myresults', ResultList::class)->name('myresults');
 
     // Admin routes
-    Route::middleware('isAdmin')->group(function () {
+        Route::middleware('isAdmin')->group(function () {
         Route::get('questions', QuestionList::class)->name('questions');
         Route::get('questions/create', QuestionForm::class)->name('question.create');
         Route::get('questions/{question}', QuestionForm::class)->name('question.edit');

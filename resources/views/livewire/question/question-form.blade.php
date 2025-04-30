@@ -50,6 +50,26 @@
                                 Add
                             </x-primary-button>
                         </div>
+                            <div class="mt-4 flex items-center space-x-2 w-full">
+                                <input
+                                    type="checkbox"
+                                    wire:model.defer="question.timer_enabled"
+                                    id="enableTimer"
+                                    class="rounded border-gray-300 text-green-500 focus:ring-green-500"
+                                >
+                                <label for="enableTimer" class="text-sm font-medium text-gray-700">
+                                    Giới hạn thời gian
+                                </label>
+                            </div>
+
+                        <div class="mt-1 w-full" x-show="question.timer_enabled">
+                            <input
+                                type="text"
+                                wire:model.defer="question.timer_limit"
+                                placeholder="Thời gian (giây)"
+                                class="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                            >
+                        </div>
 
                         <div class="mt-4">
                             <x-input-label for="code_snippet" value="Code snippet"/>

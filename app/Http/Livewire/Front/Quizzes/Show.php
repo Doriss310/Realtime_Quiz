@@ -26,7 +26,6 @@ class Show extends Component
     public $points = 0;
     public $codeSnippetInput = '';
 
-    protected $listeners = ['nextQuestion'];
 
     public function mount()
     {
@@ -40,10 +39,6 @@ class Show extends Component
             ->with('options')
             ->get();
 
-        if ($this->questions->isEmpty()) {
-            abort(404, 'No questions available for this quiz.');
-        }
-
         $this->currentQuestion = $this->questions[$this->currentQuestionIndex];
 
         $this->cacheCurrentOptions();
@@ -55,6 +50,10 @@ class Show extends Component
         ]);
     }
 
+    public function getQuestionsCountProperty(): int
+    {
+        return $this->questions->count();
+    }
 
     private function cacheCurrentOptions()
     {
@@ -65,11 +64,6 @@ class Show extends Component
                 'correct' => $option->correct
             ];
         })->all();
-    }
-
-    public function getQuestionsCountProperty(): int
-    {
-        return $this->questions->count();
     }
 
     public function selectOption($optionId)
@@ -184,7 +178,6 @@ class Show extends Component
                 }
             }
         }
-//dd($this->answersOfQuestions);
         $test->update(['result' => $result]);
         return to_route('results.show', ['test' => $test]);
     }

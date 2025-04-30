@@ -21,8 +21,7 @@ class PlayGame extends Component
 
     protected $listeners = [
         'echo:game.{session.code},GameStarted' => 'handleGameStart',
-        'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
-    ];
+        ];
 
     public function mount(Request $request, int $sessionId = null): void
     {
@@ -56,27 +55,13 @@ class PlayGame extends Component
 
         broadcast(new PlayerJoined($session, $player));
         return redirect()->route('game.join', ['sessionId' => $session->id, 'playerId' => $this->playerId]);
-
     }
 
     public function handleGameStart($data)
     {
-        try {
-            if (!isset($data['session']) || !isset($data['session']['quiz'])) {
-                \Log::error('Invalid game start data structure', ['data' => $data]);
-                return;
-            }
 
             $sessionId = $data['session']['id'];
             $quizSlug = $data['session']['quiz']['slug'];
-
-            if (empty($sessionId) || empty($quizSlug)) {
-                \Log::error('Missing required game start data', [
-                    'sessionId' => $sessionId ?? null,
-                    'quizSlug' => $quizSlug ?? null
-                ]);
-                return;
-            }
 
             $url = route('game.play', [
                 'session' => $sessionId,
@@ -84,16 +69,9 @@ class PlayGame extends Component
                 'playerId' => $this->playerId
             ]);
 
-            \Log::info('Redirecting to quiz', ['url' => $url]);
+
             $this->emit('redirectToQuiz', $url);
             $this->redirect($url);
-
-        } catch (\Exception $e) {
-            \Log::error('Error handling game start', [
-                'error' => $e->getMessage(),
-                'sessionId' => $this->sessionId
-            ]);
-        }
     }
 
     public function render()

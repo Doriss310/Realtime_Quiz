@@ -15,6 +15,9 @@ class QuestionList extends Component
 
         $question = Question::findOrFail($id);
         $question->delete();
+
+        session()->flash('message', 'Question deleted successfully.');
+
     }
 
     public function render()
@@ -22,6 +25,6 @@ class QuestionList extends Component
         $questions = Question::latest()->paginate();
 
         // Trả về một view với dữ liệu
-        return view('livewire.question.qusetion-list', compact('questions'));
+        return view('livewire.question.question-list', compact('questions'));
     }
 }

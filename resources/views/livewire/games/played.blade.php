@@ -1,31 +1,49 @@
-@if($timerEnabled)
+@if($currentQuestion->timer_enabled && $showFeedback === false)
     <div x-data="{
-    secondsLeft: {{$session->timer_limit}},
-    selectedAnswer: null
-}"
-         x-init="setInterval(() => {
-        if (secondsLeft > 1) { secondsLeft--; } else {
-            secondsLeft = {{$session->timer_limit}};
-            $wire.nextQuestion();
-        }
-    }, 1000);">
+        secondsLeft: {{$currentQuestion->timer_limit}},
+        timer: null,
+        isTimeUp: false
+    }"
+         x-init="timer = setInterval(() => {
+            if (secondsLeft > 1 && !isTimeUp) {
+                secondsLeft--;
+            } else if (!isTimeUp) {
+                isTimeUp = true;
+                clearInterval(timer);
+                $wire.nextQuestion();
+            }
+        }, 1000);"
+         @question-changed.window="
+            clearInterval(timer);
+            secondsLeft = {{$currentQuestion->timer_limit}};
+            isTimeUp = false;
+            timer = setInterval(() => {
+                if (secondsLeft > 1 && !isTimeUp) {
+                    secondsLeft--;
+                } else if (!isTimeUp) {
+                    isTimeUp = true;
+                    clearInterval(timer);
+                    $wire.nextQuestion();
+                }
+            }, 1000);
+         ">
+
 @endif
 
     <div id="root">
         @vite('resources/css/app.css')
         <div>
             <a class="btn-default btn--link" href="/">Trang chủ</a>
-            @if($timerEnabled)
-            <h2 class="text-2xl" style="text-align: center">Thời gian: <span x-text="secondsLeft"></span></h2>
-            @endif
         </div>
         <div class="quiz-container">
             <div>
                 <p>Player: {{$player->name}}</p>
             </div>
+            @if($this->currentQuestion->timer_enabled && $showFeedback === false)
+            <h2 class="text-2xl" style="text-align: center">Thời gian: <span x-text="secondsLeft"></span></h2>
+            @endif
             <div class="quiz-text text-white">
                 <p>Câu hỏi {{ $currentQuestionIndex + 1 }} / {{ $this->questionsCount }}</p>
-
                 <p>Điểm: {{ $points }}</p>
             </div>
             <div></div>
@@ -121,29 +139,17 @@
             </div>
         </div>
     </div>
-        @if($timerEnabled)
+        @if($currentQuestion->timer_enabled)
     </div>
       @endif
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             window.Echo.channel('game.{{ $session->code }}')
-                .listen('QuestionChanged', (event) => {
-                    console.log('QuestionChanged:', event);
-                    // Bạn có thể thêm logic để cập nhật danh sách người chơi
-                @this.call('handleQuestionChanged', event);
-                })
             .listen('GameEnded', (event) => {
                 console.log('GameEnded:', event);
 
                 @this.call('GameEnded', event);
             })
-                .listen('AnswerSubmitted', (event) => {
-                    console.log('Player answered correctly:', event);
-                    // Cập nhật UI của người chơi ở frontend, như điểm số
-                })
-                .listen('PlayerInitialized', (event) => {
-                    console.log('PlayerInfo:', event);
-                })
         });
     </script>
 {{--</div>--}}

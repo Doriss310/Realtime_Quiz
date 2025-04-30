@@ -8,28 +8,6 @@
                 class="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
             >
-
-            <div class="flex items-center space-x-2 w-full">
-                <input
-                    type="checkbox"
-                    wire:model.defer="enableTimer"
-                    id="enableTimer"
-                    class="rounded border-gray-300 text-green-500 focus:ring-green-500"
-                >
-                <label for="enableTimer" class="text-sm font-medium text-gray-700">
-                    Giới hạn thời gian
-                </label>
-            </div>
-
-            <div class="w-full" x-show="$wire.enableTimer">
-                <input
-                    type="text"
-                    wire:model.defer="customTimer"
-                    placeholder="Thời gian (giây)"
-                    class="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-            </div>
-
             <button
                 type="submit"
                 class="btn-default btn--link bg-green-500 text-black py-2 rounded-lg hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none transition"
@@ -75,11 +53,6 @@
                 console.log('Player Joined:', event);
                 // Bạn có thể thêm logic để cập nhật danh sách người chơi
             @this.call('handlePlayerJoined', event);
-            })
-            .listen('AnswerSubmitted', (event) => {
-                console.log('Answer Submit:', event);
-
-            @this.call('handleAnswer', event);
             })
             .listen('GameStarted', (event) => {
                 console.log('Game Start:', event);

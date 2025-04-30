@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->text('text');
             $table->text('code_snippet')->nullable();
+            $table->boolean('timer_enabled')->default(true);
+            $table->integer('timer_limit')->nullable();
             $table->text('answer_explanation')->nullable();
             $table->string('more_info_link')->nullable();
             $table->timestamps();

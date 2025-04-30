@@ -11,9 +11,15 @@ class Question extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $attributes = [
+        'timer_enabled' => false
+    ];
+
     protected $fillable = [
         'question_text',
         'code_snippet',
+        'timer_limit',
+        'timer_enabled',
         'answer_explanation',
         'more_info_link',
     ];

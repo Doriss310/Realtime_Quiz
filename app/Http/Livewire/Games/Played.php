@@ -2,14 +2,11 @@
 
 namespace App\Http\Livewire\Games;
 
-use App\Events\AnswerSubmitted;
 use App\Models\GameSession;
 use App\Models\Player;
 use App\Models\Question;
 use App\Models\Option;
 use App\Models\Quiz;
-use App\Models\Test;
-use App\Models\Answer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -28,15 +25,12 @@ class Played extends Component
     public $isCorrect = false;
     public $points = 0;
     public $codeSnippetInput = '';
-    public $timer = 20;
-    public $currentTimer = 0;
     public $isTimerRunning = false;
     public $timerEnabled = true;
     public $playerId = null;
     public $player = null;
 
     protected $listeners = [
-        'echo:game.{session.code},QuestionChanged' => 'handleQuestionChanged',
         'echo:game.{session.code},PlayerJoined' => 'handlePlayerJoined',
         'questionChanged' => 'handleQuestionChanged',
         'timeUp' => 'handleTimeUp'
@@ -53,15 +47,6 @@ class Played extends Component
         $this->quiz = $quiz;
         $this->session = $session;
 
-        $this->timerEnabled = $session->timer_enabled;
-        if($this->timerEnabled){
-            $this->timer = $session->timer_limit ?? 20;
-        }
-        if ($this->timerEnabled) {
-            $this->currentTimer = $this->timer;
-            $this->isTimerRunning = true;
-            $this->startTimer();
-        }
 
         $this->questions = Question::query()
             ->whereHas('quizzes', function ($query) {
@@ -73,24 +58,33 @@ class Played extends Component
         if ($this->questions->isEmpty()) {
             abort(404, 'No questions available for this quiz.');
         }
+        $sessionKey = $this->getSessionKey();
+        $gameProgress = session($sessionKey, [
+            'current_question_index' => 0,
+            'answers_of_questions' => array_fill(0, $this->questions->count(), [
+                'selected_options' => [],
+                'code_snippet' => '',
+                'correct' => false,
+            ]),
+            'points' => 0
+        ]);
+
+        $this->currentQuestionIndex = $gameProgress['current_question_index'];
+        $this->answersOfQuestions = $gameProgress['answers_of_questions'];
+        $this->points = $gameProgress['points'];
 
         $this->currentQuestion = $this->questions[$this->currentQuestionIndex];
-        $this->cacheCurrentOptions();
-
-        $this->answersOfQuestions = array_fill(0, $this->questionsCount, [
-            'selected_options' => [],
-            'code_snippet' => '',
-            'correct' => false,
-        ]);
-    }
-
-    public function handleTimeUp()
-    {
-        if ($this->isTimerRunning) {
-            $this->isTimerRunning = false;
-            $this->nextQuestion();
+        if($this->player->score !== 0){
+            return redirect()->route('leaderboard.show');
         }
+        $this->cacheCurrentOptions();
     }
+
+    private function getSessionKey(): string
+    {
+        return "game_progress_{$this->session->id}_{$this->playerId}";
+    }
+
     private function cacheCurrentOptions()
     {
         $this->currentOptions = $this->currentQuestion->options->map(function ($option) {
@@ -142,14 +136,6 @@ class Played extends Component
         $this->cacheCurrentOptions();
 
     }
-    private function startTimer()
-    {
-        if (!$this->timerEnabled) return;
-
-        $this->dispatchBrowserEvent('startTimer', [
-            'duration' => $this->timer
-        ]);
-    }
     private function saveCurrentAnswer()
     {
         $this->answersOfQuestions[$this->currentQuestionIndex] = [
@@ -194,6 +180,7 @@ class Played extends Component
             return;
         }
 
+
         $this->answersOfQuestions[$this->currentQuestionIndex] = [
             'selected_options' => $this->selectedOptions,
             'code_snippet' => $this->codeSnippetInput,
@@ -220,10 +207,17 @@ class Played extends Component
                 ]);
                 return $this->GameEnded();
             }
+        $sessionKey = $this->getSessionKey();
+        session([
+            $sessionKey => [
+                'current_question_index' => $this->currentQuestionIndex + 1,
+                'answers_of_questions' => $this->answersOfQuestions,
+                'points' => $this->points
+            ]
+        ]);
             $this->currentQuestionIndex++;
             $this->currentQuestion = $this->questions[$this->currentQuestionIndex];
             $this->cacheCurrentOptions();
-
             // Khôi phục các lựa chọn đã chọn trước đó (nếu có)
             $this->selectedOptions = [];
             $this->codeSnippetInput = '';
